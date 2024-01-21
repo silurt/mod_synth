@@ -20,13 +20,13 @@ void handle_rack(Rack *rack, float *out)
 Rack setupDefaultRack(Config config)
 {
   // Create LFO to modify the oscillator
-  Module *lfo = createOscillatorModule("LFO", 2, 1);
+  Module *lfo = createOscillatorModule("LFO", 2, 1, SAWTOOTH_WAVE);
   if (lfo == NULL)
   {
     // Handle allocation failure
   }
 
-  Module *osc = createOscillatorModule("OSC", 440, 1);
+  Module *osc = createOscillatorModule("OSC", 440, 1, SQUARE_WAVE);
   if (osc == NULL)
   {
     // Handle allocation failure

@@ -16,11 +16,44 @@ void oscillatorCallback(Module *module, Config config)
   if (osc->phase >= 2.0 * M_PI)
     osc->phase -= 2.0 * M_PI;
 
-  module->out->out = (float)(getGuardedInput(module, 0, osc->amplitude) * sin(osc->phase));
+  float output = 0.0; // Initialize the output value
+
+  // Switch case to select the waveform
+  switch (osc->waveform)
+  {
+  case TRIANGLE_WAVE:
+    // Implement triangle waveform generation here
+    // Calculate the triangle waveform based on phase
+    if (osc->phase < M_PI)
+      output = (-1.0 + (2.0 * osc->phase / M_PI));
+    else
+      output = (3.0 - (2.0 * osc->phase / M_PI));
+    break;
+  case SAWTOOTH_WAVE:
+    // Implement sawtooth waveform generation here
+    // Calculate the sawtooth waveform based on phase
+    output = (-1.0 + (2.0 * osc->phase / (2.0 * M_PI)));
+    break;
+  case SQUARE_WAVE:
+    // Implement square waveform generation here
+    // Square wave is essentially a pulse with 50% duty cycle
+    if (osc->phase < M_PI)
+      output = 1.0;
+    else
+      output = -1.0;
+    break;
+  case SINE_WAVE:
+  default:
+    // Default to sine wave if waveform type is not recognized
+    output = sin(osc->phase);
+    break;
+  }
+
+  module->out->out = (float)(getGuardedInput(module, 0, osc->amplitude) * output);
 }
 
 // Function to create an oscillator module
-Module *createOscillatorModule(char *name, double frequency, double amplitude)
+Module *createOscillatorModule(char *name, double frequency, double amplitude, WaveformType waveform)
 {
   // Allocate memory for the Oscillator
   Oscillator *osc = (Oscillator *)malloc(sizeof(Oscillator));
@@ -29,6 +62,7 @@ Module *createOscillatorModule(char *name, double frequency, double amplitude)
     return NULL;
   }
   osc->frequency = frequency;
+  osc->waveform = waveform;
   osc->amplitude = amplitude;
   osc->phase = 0;
 
