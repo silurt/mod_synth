@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "../module.h"
 #include "../config.h"
