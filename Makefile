@@ -29,7 +29,7 @@ $(DIRS):
 $(TARGET): $(OBJECTS)
 	@echo " Linking... 🌟"
 	mkdir -p bin
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB) -O3 $(ARCH)
+	@echo " $(CC) $^ -o $(TARGET) $(LIB) -lm"; $(CC) $^ -o $(TARGET) $(LIB) -O3 $(ARCH) -lm
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " Building... 🛠️"
