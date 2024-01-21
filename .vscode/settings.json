@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "sstream": "c",
+    "nuklear.h": "c",
+    "stdlib.h": "c",
+    "nuklear_glfw_gl4.h": "c",
+    "string.h": "c",
+    "math.h": "c"
+  }
+}
