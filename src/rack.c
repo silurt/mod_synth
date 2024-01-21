@@ -19,31 +19,22 @@ void handle_rack(Rack *rack, float *out)
 // Set up a default rack
 Rack setupDefaultRack(Config config)
 {
-  // Create an oscillator module that outputs A4
-  Module *osc = createOscillatorModule(440, 0.5);
+  // Create LFO to modify the oscillator
+  Module *lfo = createOscillatorModule("LFO", 2, 1);
+  if (lfo == NULL)
+  {
+    // Handle allocation failure
+  }
+
+  Module *osc = createOscillatorModule("OSC", 440, 1);
   if (osc == NULL)
   {
     // Handle allocation failure
   }
 
-  // Allocate memory for the array of Module pointers
-  Module **modules = (Module **)malloc(sizeof(Module *) * 1);
-  if (modules == NULL)
-  {
-    // Handle allocation failure
-    freeModule(osc);
-  }
-  modules[0] = osc;
-
-  // Create and set up a MasterMixerChannel for the oscillator
-  MasterMixerChannel *oscChannel = (MasterMixerChannel *)malloc(sizeof(MasterMixerChannel));
-  if (oscChannel == NULL)
-  {
-    // Handle allocation failure
-    freeModule(osc);
-    free(modules);
-  }
-  *oscChannel = (MasterMixerChannel){.moduleOut = osc->out};
+  // Set up the LFO to output into the input of the oscillator
+  osc->in = (ModuleOut **)malloc(sizeof(ModuleOut *) * 1);
+  osc->in[0] = lfo->out;
 
   // Create and set up a Mixer
   Mixer *mixer = (Mixer *)malloc(sizeof(Mixer));
@@ -51,16 +42,42 @@ Rack setupDefaultRack(Config config)
   {
     // Handle allocation failure
     freeModule(osc);
-    free(modules);
-    free(oscChannel);
+    freeModule(lfo);
   }
-  *mixer = (Mixer){.channels = oscChannel, .channelCount = 1};
+
+  // Create and set up a MasterMixerChannel for the oscillator
+  MasterMixerChannel oscChannel = (MasterMixerChannel){.moduleOut = osc->out};
+
+  // Set the channel count in the mixer
+  mixer->channelCount = 1;
+
+  // Allocate memory for the channels array and add the oscillator channel
+  mixer->channels = (MasterMixerChannel *)malloc(sizeof(MasterMixerChannel *) * mixer->channelCount);
+  if (mixer->channels == NULL)
+  {
+    // Handle allocation failure
+    freeModule(osc);
+    freeModule(lfo);
+    free(mixer);
+  }
+  mixer->channels[0] = oscChannel;
+
+  // Allocate memory for the array of Module pointers
+  Module **modules = (Module **)malloc(sizeof(Module *) * 2);
+  if (modules == NULL)
+  {
+    // Handle allocation failure
+    freeModule(osc);
+    freeModule(lfo);
+    free(mixer);
+  }
+  modules[0] = lfo;
+  modules[1] = osc;
 
   // Create and return the Rack object
   Rack rack = {
       .modules = modules,
-      // Lets just manually set the count for now
-      .moduleCount = 1,
+      .moduleCount = 2, // Update module count to 2
       .master = mixer,
       .config = config};
 

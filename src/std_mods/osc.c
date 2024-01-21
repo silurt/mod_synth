@@ -1,5 +1,7 @@
 #include "./osc.h"
 
+// The first input of the oscillator module determines the amplitude
+
 void oscillatorCallback(Module *module, Config config)
 {
   Oscillator *osc = (Oscillator *)module->moduleData;
@@ -10,23 +12,15 @@ void oscillatorCallback(Module *module, Config config)
   // Update the phase accumulator
   osc->phase += phaseIncrement;
 
-  // Check if the phase has exceeded 2*pi (one cycle)
+  // Check if the phase has exceeded 2*pi (one cycle) and reset the phase to prevent it from growing indefinitely
   if (osc->phase >= 2.0 * M_PI)
-  {
-    // Reset the phase to prevent it from growing indefinitely
     osc->phase -= 2.0 * M_PI;
-  }
 
-  module->out->out = (float)(osc->amplitude * sin(osc->phase));
-
-  // This is for testing if the phase is out of whack, will replace with some form of input handling
-  osc->frequency += 0.01;
-  if (osc->frequency >= 1000)
-    osc->frequency = 0;
+  module->out->out = (float)(getGuardedInput(module, 0, osc->amplitude) * sin(osc->phase));
 }
 
 // Function to create an oscillator module
-Module *createOscillatorModule(double frequency, double amplitude)
+Module *createOscillatorModule(char *name, double frequency, double amplitude)
 {
   // Allocate memory for the Oscillator
   Oscillator *osc = (Oscillator *)malloc(sizeof(Oscillator));
@@ -46,6 +40,7 @@ Module *createOscillatorModule(double frequency, double amplitude)
     return NULL;
   }
 
+  module->name = name;
   // Allocate memory for ModuleOut
   module->out = (ModuleOut *)malloc(sizeof(ModuleOut));
   if (module->out == NULL)
@@ -54,6 +49,8 @@ Module *createOscillatorModule(double frequency, double amplitude)
     free(module);
     return NULL;
   }
+
+  module->out->out = frequency;
 
   // Initialize the Module fields
   module->moduleData = osc;

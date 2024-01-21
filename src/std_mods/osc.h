@@ -18,4 +18,4 @@ typedef struct Oscillator
   double amplitude;
 } Oscillator;
 
-Module *createOscillatorModule(double frequency, double amplitude);
+Module *createOscillatorModule(char* name, double frequency, double amplitude);

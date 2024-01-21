@@ -12,6 +12,8 @@
     "config.h": "c",
     "osc.h": "c",
     "portaudio.h": "c",
-    "rack.h": "c"
+    "rack.h": "c",
+    "typeindex": "c",
+    "typeinfo": "c"
   }
 }

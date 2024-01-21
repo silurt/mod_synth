@@ -17,3 +17,10 @@ void freeModule(Module *module)
   // Finally, free the module itself
   free(module);
 }
+
+float getGuardedInput(Module *module, int inputIndex, float fallback)
+{
+  if (module->in == NULL || module->in[inputIndex] == NULL)
+    return fallback;
+  return module->in[inputIndex]->out;
+}
