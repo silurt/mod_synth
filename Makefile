@@ -10,6 +10,8 @@ CFLAGS := -std=c99 -Wall -Wextra -pedantic -Wno-misleading-indentation -Wno-shif
 LIB := -L/opt/homebrew/lib -lportaudio
 INC := -I/opt/homebrew/include -I include
 
+ARCH := -arch arm64
+
 all: directories $(TARGET)
 
 directories: $(DIRS)
@@ -19,12 +21,13 @@ $(DIRS):
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking... 🌟"
-	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB) -O3
+	mkdir -p bin
+	@echo " $(CC) $^ -o $(TARGET) $(LIB)"; $(CC) $^ -o $(TARGET) $(LIB) -O3 $(ARCH)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo " Building... 🛠️"
 	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $< -O3
+	@echo " $(CC) $(CFLAGS) $(INC) -c -o $@ $<"; $(CC) $(CFLAGS) $(INC) -c -o $@ $< -O3 $(ARCH)
 
 clean:
 	@echo " Cleaning up... 🧹✨"
