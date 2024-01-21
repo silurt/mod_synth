@@ -7,10 +7,18 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 DIRS := $(dir $(OBJECTS))
 CFLAGS := -std=c99 -Wall -Wextra -pedantic -Wno-misleading-indentation -Wno-shift-negative-value -O2
-LIB := -L/opt/homebrew/lib -lportaudio
-INC := -I/opt/homebrew/include -I include
-
 ARCH := -arch arm64
+LIB :=
+INC :=
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    LIB := -L/opt/homebrew/lib -lportaudio
+    INC := -I/opt/homebrew/include -I include
+else
+    LIB := -lportaudio
+    INC := -I include
+endif
 
 all: directories $(TARGET)
 
