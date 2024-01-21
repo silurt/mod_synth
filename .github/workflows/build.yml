@@ -7,11 +7,19 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-latest-arm64
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Cache Homebrew packages
+      uses: actions/cache@v2
+      with:
+        path: ~/Library/Caches/Homebrew
+        key: brew-packages-${{ runner.os }}-${{ hashFiles('**/Brewfile.lock.json') }}
+        restore-keys: |
+          brew-packages-${{ runner.os }}-
 
     - name: Install PortAudio
       run: brew install portaudio
