@@ -5,9 +5,17 @@ TARGET := bin/run
 SRCEXT := c
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+DIRS := $(dir $(OBJECTS))
 CFLAGS := -std=c99 -Wall -Wextra -pedantic -Wno-misleading-indentation -Wno-shift-negative-value -O2
-LIB := -L/opt/homebrew/Cellar/portaudio/19.7.0/lib -lportaudio
-INC := -I/opt/homebrew/Cellar/portaudio/19.7.0/include -I include
+LIB := -L/opt/homebrew/lib -lportaudio
+INC := -I/opt/homebrew/include -I include
+
+all: directories $(TARGET)
+
+directories: $(DIRS)
+
+$(DIRS):
+	mkdir -p $@
 
 $(TARGET): $(OBJECTS)
 	@echo " Linking... 🌟"
