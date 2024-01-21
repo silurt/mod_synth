@@ -7,7 +7,6 @@ SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 DIRS := $(dir $(OBJECTS))
 CFLAGS := -std=c99 -Wall -Wextra -pedantic -Wno-misleading-indentation -Wno-shift-negative-value -O2
-ARCH := -arch arm64
 LIB :=
 INC :=
 
