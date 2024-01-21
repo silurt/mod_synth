@@ -7,24 +7,20 @@ on:
 
 jobs:
   release:
-    runs-on: macos-latest-arm64
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Cache Homebrew packages
-      uses: actions/cache@v2
-      with:
-        path: ~/Library/Caches/Homebrew
-        key: brew-packages-${{ runner.os }}-${{ hashFiles('**/Brewfile.lock.json') }}
-        restore-keys: |
-          brew-packages-${{ runner.os }}-
-
     - name: Install PortAudio
-      run: brew install portaudio
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y portaudio19-dev
+        # Move PortAudio to /opt/homebrew/lib
+        sudo mv /usr/lib/x86_64-linux-gnu/libportaudio* /opt/homebrew/lib/
 
-    - name: Build project for macOS
+    - name: Build project
       run: make
 
     - name: Create Release
