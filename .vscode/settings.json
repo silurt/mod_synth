@@ -11,6 +11,7 @@
     "module.h": "c",
     "config.h": "c",
     "osc.h": "c",
-    "portaudio.h": "c"
+    "portaudio.h": "c",
+    "rack.h": "c"
   }
 }

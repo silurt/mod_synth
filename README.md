@@ -1,4 +1,4 @@
-# mod_synth_c
+# mod_synth
 
 This is more for my personal education on sound stuff and c in general so horribly inefficient and also only builds on macOS
 

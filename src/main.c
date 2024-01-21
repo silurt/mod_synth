@@ -2,7 +2,6 @@
 #include <math.h>
 #include <portaudio.h>
 
-#include "std_mods/osc.h"
 #include "rack.h"
 
 static int paCallback(const void *inputBuffer, void *outputBuffer,
@@ -22,62 +21,12 @@ static int paCallback(const void *inputBuffer, void *outputBuffer,
   return 0;
 }
 
-Rack setUpRack(Config config)
-{
-  // Create an oscillator module that outputs A4
-  Module *osc = createOscillatorModule(440, 0.5);
-  if (osc == NULL)
-  {
-    // Handle allocation failure
-  }
-
-  // Allocate memory for the array of Module pointers
-  Module **modules = (Module **)malloc(sizeof(Module *) * 1);
-  if (modules == NULL)
-  {
-    // Handle allocation failure
-    freeModule(osc);
-  }
-  modules[0] = osc;
-
-  // Create and set up a MasterMixerChannel for the oscillator
-  MasterMixerChannel *oscChannel = (MasterMixerChannel *)malloc(sizeof(MasterMixerChannel));
-  if (oscChannel == NULL)
-  {
-    // Handle allocation failure
-    freeModule(osc);
-    free(modules);
-  }
-  *oscChannel = (MasterMixerChannel){.moduleOut = osc->out};
-
-  // Create and set up a Mixer
-  Mixer *mixer = (Mixer *)malloc(sizeof(Mixer));
-  if (mixer == NULL)
-  {
-    // Handle allocation failure
-    freeModule(osc);
-    free(modules);
-    free(oscChannel);
-  }
-  *mixer = (Mixer){.channels = oscChannel, .channelCount = 1};
-
-  // Create and return the Rack object
-  Rack rack = {
-      .modules = modules,
-      // Lets just manually set the count for now
-      .moduleCount = 1,
-      .master = mixer,
-      .config = config};
-
-  return rack;
-}
-
 int main(void)
 {
   PaStream *stream;
   PaError err;
 
-  Rack rack = setUpRack((Config){.framesPerBuffer = 64, .sampleRate = 44100});
+  Rack rack = setupDefaultRack((Config){.framesPerBuffer = 64, .sampleRate = 44100});
 
   err = Pa_Initialize();
   if (err != paNoError)

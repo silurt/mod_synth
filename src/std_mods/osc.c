@@ -1,4 +1,4 @@
-#include "osc.h"
+#include "./osc.h"
 
 void oscillatorCallback(Module *module, Config config)
 {

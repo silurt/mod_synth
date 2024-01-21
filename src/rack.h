@@ -6,6 +6,7 @@
 
 #include "./mixer.h"
 #include "./config.h"
+#include "./std_mods/std_mods.h"
 
 typedef struct
 {
@@ -17,3 +18,4 @@ typedef struct
 } Rack;
 
 void handle_rack(Rack *rack, float *out);
+Rack setupDefaultRack(Config config);
