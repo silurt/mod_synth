@@ -1,4 +1,5 @@
-#include "rack.h"
+#include "./rack.h"
+#include "../std_mods/osc/mod.h"
 
 void handle_rack(Rack *rack, float *out)
 {
@@ -8,7 +9,16 @@ void handle_rack(Rack *rack, float *out)
     // Iterate over all modules
     for (int moduleIndex = 0; moduleIndex < rack->moduleCount; moduleIndex++)
     {
-      rack->modules[moduleIndex]->callback(rack->modules[moduleIndex], rack->config);
+      // This is probably very inefficient
+      LoadedModule *lm = loadModule("osc");
+      if (lm && lm->callbackModule)
+      {
+        lm->callbackModule(rack->modules[moduleIndex], rack->config);
+      }
+      else
+      {
+        fprintf(stderr, "Module or callbackModule function is null\n");
+      }
     }
 
     // Mix the output for the current frame
@@ -19,45 +29,54 @@ void handle_rack(Rack *rack, float *out)
 // Set up a default rack
 Rack setupDefaultRack(Config config)
 {
-  // Create LFO to modify the oscillator
-  Module *lfo = createOscillatorModule("LFO", 2, 1, SAWTOOTH_WAVE);
-  if (lfo == NULL)
-  {
-    // Handle allocation failure
-  }
 
-  Module *osc = createOscillatorModule("OSC", 440, 1, SQUARE_WAVE);
-  if (osc == NULL)
-  {
-    // Handle allocation failure
-  }
+  // Setup the oscillators
+  Oscillator *oscData = (Oscillator *)malloc(sizeof(Oscillator));
+  oscData->frequency = 440;
+  oscData->waveform = SQUARE_WAVE;
+  oscData->amplitude = 1;
+  oscData->phase = 0;
+
+  Oscillator *lfoData = (Oscillator *)malloc(sizeof(Oscillator));
+
+  lfoData->frequency = 1;
+  lfoData->waveform = SINE_WAVE;
+  lfoData->amplitude = 1;
+  lfoData->phase = 0;
+
+  Module *oscModule = malloc(sizeof(Module));
+  *oscModule = createBaseModule(oscData, (ModuleMeta){.lib = "osc", .name = "Oscillator"});
+
+  Module *lfoModule = malloc(sizeof(Module));
+  *lfoModule = createBaseModule(lfoData, (ModuleMeta){.lib = "osc", .name = "LFO"});
 
   // Set up the LFO to output into the input of the oscillator
-  osc->in = (ModuleOut **)malloc(sizeof(ModuleOut *) * 1);
-  osc->in[0] = lfo->out;
+  oscModule->in = (ModuleOut **)malloc(sizeof(ModuleOut *) * 1);
+  oscModule->in[0] = lfoModule->out;
 
   // Create and set up a Mixer
   Mixer *mixer = (Mixer *)malloc(sizeof(Mixer));
   if (mixer == NULL)
   {
     // Handle allocation failure
-    freeModule(osc);
-    freeModule(lfo);
+    freeModule(oscModule);
+    freeModule(lfoModule);
   }
 
   // Create and set up a MasterMixerChannel for the oscillator
-  MasterMixerChannel oscChannel = (MasterMixerChannel){.moduleOut = osc->out};
+  MasterMixerChannel oscChannel = (MasterMixerChannel){.moduleOut = oscModule->out};
 
   // Set the channel count in the mixer
   mixer->channelCount = 1;
 
   // Allocate memory for the channels array and add the oscillator channel
-  mixer->channels = (MasterMixerChannel *)malloc(sizeof(MasterMixerChannel *) * mixer->channelCount);
+
+  mixer->channels = (MasterMixerChannel *)malloc(sizeof(MasterMixerChannel) * mixer->channelCount);
   if (mixer->channels == NULL)
   {
     // Handle allocation failure
-    freeModule(osc);
-    freeModule(lfo);
+    freeModule(oscModule);
+    freeModule(lfoModule);
     free(mixer);
   }
   mixer->channels[0] = oscChannel;
@@ -67,12 +86,12 @@ Rack setupDefaultRack(Config config)
   if (modules == NULL)
   {
     // Handle allocation failure
-    freeModule(osc);
-    freeModule(lfo);
+    freeModule(oscModule);
+    freeModule(lfoModule);
     free(mixer);
   }
-  modules[0] = lfo;
-  modules[1] = osc;
+  modules[0] = lfoModule;
+  modules[1] = oscModule;
 
   // Create and return the Rack object
   Rack rack = {

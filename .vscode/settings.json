@@ -14,6 +14,8 @@
     "portaudio.h": "c",
     "rack.h": "c",
     "typeindex": "c",
-    "typeinfo": "c"
+    "typeinfo": "c",
+    "module_loader.h": "c",
+    "mod.h": "c"
   }
 }

@@ -5,11 +5,11 @@
 
 // They dropped it in c99 for some reason: https://ubuntuforums.org/showthread.php?t=583094
 #ifndef M_PI
-#define M_PI           3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
 
-#include "../module.h"
-#include "../config.h"
+#include "../../src/config.h"
+#include "../../src/module.h"
 
 // Enumeration for different waveform types
 typedef enum
@@ -28,4 +28,7 @@ typedef struct Oscillator
   WaveformType waveform;
 } Oscillator;
 
-Module *createOscillatorModule(char* name, double frequency, double amplitude, WaveformType waveform);
+Module *createOscillatorModule(char *name, double frequency, double amplitude, WaveformType waveform);
+
+void callbackModule(Module *module, Config config);
+Module createModule(char *name);

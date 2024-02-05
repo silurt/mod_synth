@@ -28,7 +28,6 @@ make watch
 ### To-Dos:
 
 - Fix the bin file in the generated release.
-- Implement dynamic loading for C modules.
 - Set up audio routing between modules.
 - Develop a real-time audio processing engine.
 - Create an API for custom module creation.

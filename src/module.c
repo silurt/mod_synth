@@ -8,13 +8,7 @@ void freeModule(Module *module)
     return;
   }
 
-  // Free the output buffer if it was allocated
-  // free(module->out->out);
-
-  // Free the ModuleOut
   free(module->out);
-
-  // Finally, free the module itself
   free(module);
 }
 
@@ -23,4 +17,16 @@ float getGuardedInput(Module *module, int inputIndex, float fallback)
   if (module->in == NULL || module->in[inputIndex] == NULL)
     return fallback;
   return module->in[inputIndex]->out;
+}
+
+Module createBaseModule(void *moduleData, ModuleMeta meta)
+{
+  Module mod = (Module){.meta = meta, .moduleData = moduleData};
+  mod.out = malloc(sizeof(*mod.out));
+  if (mod.out == NULL)
+  {
+    fprintf(stderr, "Failed to allocate memory for module->out\n");
+  }
+
+  return mod;
 }

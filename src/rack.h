@@ -6,7 +6,8 @@
 
 #include "./mixer.h"
 #include "./config.h"
-#include "./std_mods/std_mods.h"
+#include "./module.h"
+#include "./module_loader.h"
 
 typedef struct
 {

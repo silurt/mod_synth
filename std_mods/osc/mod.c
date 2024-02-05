@@ -1,9 +1,20 @@
-#include "./osc.h"
+#include "./mod.h"
 
-// The first input of the oscillator module determines the amplitude
-
-void oscillatorCallback(Module *module, Config config)
+float getLocalGuardedInput(Module *module, int inputIndex, float fallback)
 {
+  if (module->in == NULL || module->in[inputIndex] == NULL)
+    return fallback;
+  return module->in[inputIndex]->out;
+}
+
+void callbackModule(Module *module, Config config)
+{
+  if (!module || !module->moduleData)
+  {
+    fprintf(stderr, "Null pointer encountered in callbackModule\n");
+    return; // Exit the function early if any pointers are NULL
+  }
+
   Oscillator *osc = (Oscillator *)module->moduleData;
 
   // Calculate the phase increment based on the desired frequency
@@ -48,47 +59,31 @@ void oscillatorCallback(Module *module, Config config)
     output = sin(osc->phase);
     break;
   }
-
-  module->out->out = (float)(getGuardedInput(module, 0, osc->amplitude) * output);
+  module->out->out = (float)(getLocalGuardedInput(module, 0, osc->amplitude) * output);
 }
 
-// Function to create an oscillator module
-Module *createOscillatorModule(char *name, double frequency, double amplitude, WaveformType waveform)
+Module createModule(char *name)
 {
   // Allocate memory for the Oscillator
   Oscillator *osc = (Oscillator *)malloc(sizeof(Oscillator));
   if (osc == NULL)
   {
-    return NULL;
+    return (Module){0};
   }
-  osc->frequency = frequency;
-  osc->waveform = waveform;
-  osc->amplitude = amplitude;
+
+  osc->frequency = 440;
+  osc->waveform = SAWTOOTH_WAVE;
+  osc->amplitude = 1;
   osc->phase = 0;
 
   // Allocate memory for the Module
-  Module *module = (Module *)malloc(sizeof(Module));
-  if (module == NULL)
-  {
-    free(osc);
-    return NULL;
-  }
+  Module module;
 
-  module->name = name;
-  // Allocate memory for ModuleOut
-  module->out = (ModuleOut *)malloc(sizeof(ModuleOut));
-  if (module->out == NULL)
-  {
-    free(osc);
-    free(module);
-    return NULL;
-  }
+  module.meta = (ModuleMeta){.name = name, .lib = "osc"};
+  module.out = (ModuleOut *)malloc(sizeof(ModuleOut));
+  module.out->out = osc->frequency;
 
-  module->out->out = frequency;
-
-  // Initialize the Module fields
-  module->moduleData = osc;
-  module->callback = oscillatorCallback;
+  module.moduleData = osc;
 
   return module;
 }
